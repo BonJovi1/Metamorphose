@@ -4,4 +4,4 @@ parser: scanner.l parser.y
 	gcc -o parser lex.yy.c parser.tab.c -ll
 
 clean:
-	rm lex.yy.c parser.tab.c parser.tab.h
+	rm lex.yy.c parser.tab.c parser.tab.h parser

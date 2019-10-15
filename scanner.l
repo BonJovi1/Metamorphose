@@ -5,7 +5,7 @@ int lineno = 0;
 
 %% 
 [ \t] 		{ /* eat white spaces */  }
-[a-zA-Z][a-zA-Z]* 	{ return ID; }
+[a-zA-Z][a-zA-Z]* 	{ printf("Scanned \n"); return ID; }
 [0-9][0-9]*		{ return NUMBER; }
 [+-]			{ return yytext[0]; }
 
