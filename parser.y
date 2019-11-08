@@ -7,10 +7,13 @@
 %token TYPE
 %token SEMICOLON
 %token EQUAL_TO
-
+%token DOLLAR
+%token OP UNARY_OP
+%token FOR LEFT_BRACKET RIGHT_BRACKET 
+%token FOR_SEPARATE
 %%
 
-Goal:	Exprs '$' | '$' {printf("Rule accepted"); return 0;}
+Goal:	Exprs DOLLAR | DOLLAR {printf("Rule accepted"); return 0;}
 
 Exprs: Expr '\n' Exprs
 	 | Expr '\t' Exprs
@@ -19,30 +22,25 @@ Exprs: Expr '\n' Exprs
      ;
 
 Expr: assignment
-	| operation
 	| declaration
+	| for_statement
 	;
-
-operation: operation Op Term 
-		 | Term
-		 ;
 
 declaration: TYPE ID SEMICOLON 
 		 ;
 
-
-
-assignment: ID EQUAL_TO operation 
+assignment: ID EQUAL_TO operation SEMICOLON
 		 ;
+
+operation: operation OP Term 
+		 | Term 
+		 | UNARY_OP Term 
+		 ;
+
+for_statement: FOR LEFT_BRACKET Term FOR_SEPARATE Term FOR_SEPARATE Term RIGHT_BRACKET
 
 Term: NUMBER
 	| ID
-	;
-
-Op:	'+'
-	| '-'
-	| '*'
-	| '/'
 	;
 
 %%
