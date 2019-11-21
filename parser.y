@@ -1,5 +1,7 @@
 %{
 #include <stdio.h>
+#include "ast.h"
+#define YYSTYPE struct ASTNode *
 %}
 
 %token NUMBER ID
@@ -11,11 +13,17 @@
 %token OP UNARY_OP
 %token FOR LEFT_BRACKET RIGHT_BRACKET 
 %token FOR_SEPARATE
+%token COMPARATOR
+%token WHILE
+%token IN
+%token INPUT
+%token OUTPUT
 %%
 
-Goal:	Exprs DOLLAR | DOLLAR {printf("Rule accepted"); return 0;}
+Goal:	Exprs DOLLAR {printf("Rule accepted"); return 0;}
+	 | DOLLAR {printf("Rule accepted"); return 0;}
 
-Exprs: Expr '\n' Exprs
+Exprs: Expr '\n' Exprs { printPostFix($1); printf("\n>>"); }
 	 | Expr '\t' Exprs
 	 | Expr Exprs
      | Expr
@@ -24,24 +32,43 @@ Exprs: Expr '\n' Exprs
 Expr: assignment
 	| declaration
 	| for_statement
+	| while_statement
+	| print_statement
+	| scan_statement
 	;
 
 declaration: TYPE ID SEMICOLON 
 		 ;
 
-assignment: ID EQUAL_TO operation SEMICOLON
+assignment: ID EQUAL_TO operation SEMICOLON 
 		 ;
 
-operation: operation OP Term 
+operation: operation OP Term { $$ = getASTNodeBinaryOp($1, $1, $2); printPostFix($$);}
 		 | Term 
 		 | UNARY_OP Term 
 		 ;
 
-for_statement: FOR LEFT_BRACKET Term FOR_SEPARATE Term FOR_SEPARATE Term RIGHT_BRACKET
+prints_possibilities: prints prints_possibilities
+					| prints
+					
+prints: NUMBER
+	  | ID
+	  | Exprs
 
-Term: NUMBER
+print_statement: OUTPUT '{' prints_possibilities '}' SEMICOLON
+scan_statement: INPUT '{' ID '}' SEMICOLON
+
+condition: operation COMPARATOR operation 
+
+for_statement: FOR variable IN LEFT_BRACKET Term FOR_SEPARATE Term FOR_SEPARATE Term RIGHT_BRACKET '{' Exprs '}'
+
+while_statement: WHILE LEFT_BRACKET condition RIGHT_BRACKET '{' Exprs '}'
+
+Term: NUMBER { $$ = getASTNodeIntLiteral(yylval); }
 	| ID
 	;
+
+variable: ID
 
 %%
 

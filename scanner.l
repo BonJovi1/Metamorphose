@@ -4,28 +4,39 @@ int lineno = 0;
 %}
 
 %% 
-"int" 			{printf("encountered\n"); return TYPE;}
-"char" 			{printf("encountered\n"); return TYPE;}
-"uint" 			{printf("encountered\n"); return TYPE;}
-"bool" 			{printf("encountered\n"); return TYPE;}
-"string" 		{printf("encountered\n"); return TYPE;}
-"array" 		{printf("encountered\n"); return TYPE;}
+"int" 			{return TYPE;}
+"char" 			{return TYPE;}
+"uint" 			{printf("encountered int \n"); return TYPE;}
+"bool" 			{return TYPE;}
+"string" 		{return TYPE;}
+"array" 		{return TYPE;}
 
 ";" 			{return SEMICOLON;}
 "="				{return EQUAL_TO;}
 [ \t] 			{ /* eat white spaces */  }
 
-"and"			{printf("encountered\n"); return OP;}
-"or"			{printf("encountered\n"); return OP;}
-"not"			{printf("encountered\n"); return UNARY_OP;}
+"and"			{ return OP;}
+"or"			{ return OP;}
+"not"			{ return UNARY_OP;}
 [+*/-]			{ return OP; }
-"for"			{ printf("encountered\n"); return FOR; }
+"for"			{ return FOR; }
+"while"			{ return WHILE; }
+"cout"			{ return OUTPUT; }
+"cin"			{ return INPUT; }
 ":"			    { return FOR_SEPARATE;}
 "["				{ return LEFT_BRACKET; }
-"]"				{ return RIGHT_BRACKET; }				
+"]"				{ return RIGHT_BRACKET; }	
+"{"				{ return '{'; }
+"}"				{ return '}'; }	
+"in"			{ return IN; }
+"=="		 	{ return COMPARATOR; }
+"<="		 	{ return COMPARATOR; }
+">="		 	{ return COMPARATOR; }
+"<"		 		{ return COMPARATOR; }
+">"		 		{ return COMPARATOR; }
 
-[a-zA-Z][a-zA-Z0-9]* 	{ printf("Scanned \n"); return ID; }
-[0-9][0-9]*				{ printf("Scanned \n"); return NUMBER; }
+[a-zA-Z][a-zA-Z0-9]* 	{ return ID; }
+[0-9][0-9]*				{ return NUMBER; }
 
 [$]				{ printf("%c\n",yytext[0]); return DOLLAR; }
 \n				{ ++lineno; return '\n'; }
