@@ -14,7 +14,21 @@ extern FILE *yyin;
 %token SEMICOLON
 %token EQUAL_TO
 %token DOLLAR
-%token OP UNARY_OP
+
+%token UNARY_OP
+%token AND_OP
+%token OR_OP
+%token ADD_OP
+%token SUB_OP
+%token MUL_OP
+
+%token EQ_COMP
+%token LE_COMP
+%token GE_COMP
+%token LT_COMP
+%token GT_COMP
+
+
 %token FOR LEFT_BRACKET RIGHT_BRACKET 
 %token FOR_SEPARATE
 %token COMPARATOR
@@ -51,7 +65,11 @@ multiple_ids: ID COMMA multiple_ids
 assignment: ID EQUAL_TO operation SEMICOLON {printPostFix($3);}
 		 ;
 
-operation: operation OP Term 
+operation: operation AND_OP Term
+		 | operation OR_OP Term
+		 operation AND_OP Term
+		 operation AND_OP Term
+		 operation AND_OP Term
 		 | operation PLUS Term { $$ = getASTNodeBinaryOp($1, $3, ADD);}
 		 | Term { $$ = $1;}
 		 | UNARY_OP Term 
