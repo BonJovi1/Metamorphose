@@ -1,0 +1,19 @@
+int N, i, flag;
+cin{N};
+flag = 0;
+for i in [2:N:1]
+{
+	if[N/i == 0]
+	{
+		flag = 1; 
+	} 
+}
+if[flag == 0]
+{
+	cout{PRIME}; 
+}
+else 
+{ 
+	cout{PRIME}; 
+}
+$

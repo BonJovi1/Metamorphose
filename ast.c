@@ -49,6 +49,8 @@ void printPostFix(struct ASTNode *root)
 	switch (root->nodetype) 
 	{
 		case BinaryOp:
+						printf("Binary Operator\n");
+						
 						printPostFix(root->binarynode.left);
 						printPostFix(root->binarynode.right);
 						switch (root->binarynode.op) 
@@ -69,7 +71,8 @@ void printPostFix(struct ASTNode *root)
 		// 				printPostFix(root->ternarynode.third);
 		// 				printf("? ");
 		// 				break;
-		case INTLITERAL: printf("%d ", root->litval);
+		case INTLITERAL:
+						printf("%d ", root->litval);
 						break;
 	}
 };

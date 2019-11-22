@@ -1,0 +1,17 @@
+int N, K;
+cin{N, K};
+int sum;
+sum = 0;
+for i in [1:N:1] 
+{   
+	prod = 1; 
+	for j in [1:K:1] 
+	{   
+		prod = prod * i;
+		cin{a}; 
+	} 
+	sum = sum + prod; 
+}
+cout{sum}; 
+$
+ 

@@ -2,10 +2,14 @@
 #include <stdio.h>
 #include "ast.h"
 #define YYSTYPE struct ASTNode *
+
+extern int yylex();
+extern int yyparse();
+extern FILE *yyin;
 %}
 
 %token NUMBER ID
-%token IF ELSE FOR
+%token IF ELSE 
 %token TYPE
 %token SEMICOLON
 %token EQUAL_TO
@@ -18,14 +22,15 @@
 %token IN
 %token INPUT
 %token OUTPUT
+%token COMMA
+%token BREAK
+%token PLUS
 %%
 
-Goal:	Exprs DOLLAR {printf("Rule accepted"); return 0;}
+Goal:	Exprs DOLLAR {printf("Rule accepted \n"); return 0;}
 	 | DOLLAR {printf("Rule accepted"); return 0;}
 
-Exprs: Expr '\n' Exprs { printPostFix($1); printf("\n>>"); }
-	 | Expr '\t' Exprs
-	 | Expr Exprs
+Exprs: Expr Exprs
      | Expr
      ;
 
@@ -35,16 +40,20 @@ Expr: assignment
 	| while_statement
 	| print_statement
 	| scan_statement
+	| if_statement
 	;
 
-declaration: TYPE ID SEMICOLON 
+declaration: TYPE multiple_ids SEMICOLON 
+		 ;
+multiple_ids: ID COMMA multiple_ids
+			| ID
+
+assignment: ID EQUAL_TO operation SEMICOLON {printPostFix($3);}
 		 ;
 
-assignment: ID EQUAL_TO operation SEMICOLON 
-		 ;
-
-operation: operation OP Term { $$ = getASTNodeBinaryOp($1, $1, $2); printPostFix($$);}
-		 | Term 
+operation: operation OP Term 
+		 | operation PLUS Term { $$ = getASTNodeBinaryOp($1, $3, ADD);}
+		 | Term { $$ = $1;}
 		 | UNARY_OP Term 
 		 ;
 
@@ -56,15 +65,19 @@ prints: NUMBER
 	  | Exprs
 
 print_statement: OUTPUT '{' prints_possibilities '}' SEMICOLON
-scan_statement: INPUT '{' ID '}' SEMICOLON
+scan_statement: INPUT '{' multiple_ids '}' SEMICOLON
 
 condition: operation COMPARATOR operation 
 
-for_statement: FOR variable IN LEFT_BRACKET Term FOR_SEPARATE Term FOR_SEPARATE Term RIGHT_BRACKET '{' Exprs '}'
+for_statement: FOR variable IN LEFT_BRACKET Term FOR_SEPARATE Term FOR_SEPARATE Term RIGHT_BRACKET 
+				'{' Exprs '}'
 
 while_statement: WHILE LEFT_BRACKET condition RIGHT_BRACKET '{' Exprs '}'
 
-Term: NUMBER { $$ = getASTNodeIntLiteral(yylval); }
+if_statement: IF LEFT_BRACKET condition RIGHT_BRACKET '{' Exprs '}'
+			| IF LEFT_BRACKET condition RIGHT_BRACKET '{' Exprs '}' ELSE '{' Exprs '}'
+
+Term: NUMBER { $$ = yylval; }
 	| ID
 	;
 
