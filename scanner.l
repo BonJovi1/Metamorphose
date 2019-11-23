@@ -7,12 +7,12 @@ int lineno = 0;
 %}
 
 %% 
-"int" 			{return TYPE;}
-"char" 			{return TYPE;}
-"uint" 			{printf("encountered uint \n"); return TYPE;}
-"bool" 			{return TYPE;}
-"string" 		{return TYPE;}
-"array" 		{return TYPE;}
+"int" 			{return INT_TYPE;}
+"char" 			{return CHAR_TYPE;}
+"uint" 			{printf("encountered uint \n"); return UINT_TYPE;}
+"bool" 			{return BOOL_TYPE;}
+"string" 		{return STRING_TYPE;}
+"array[]" 		{return ARRAY_TYPE;}
 
 ";" 			{return SEMICOLON;}
 "="				{return EQUAL_TO;}
