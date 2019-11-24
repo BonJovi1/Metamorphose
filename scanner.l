@@ -7,17 +7,17 @@ int lineno = 0;
 %}
 
 %% 
-"int" 			{return INT_TYPE;}
+\n				{ ++lineno; }
+[ \t] 			;
+"int" 			{printf("encountered int \n"); return INT_TYPE;}
 "char" 			{return CHAR_TYPE;}
 "uint" 			{printf("encountered uint \n"); return UINT_TYPE;}
 "bool" 			{return BOOL_TYPE;}
 "string" 		{return STRING_TYPE;}
 "array[]" 		{return ARRAY_TYPE;}
 
-";" 			{return SEMICOLON;}
+[;] 			{return ';';}
 "="				{return EQUAL_TO;}
-\n				{ ++lineno; }
-[ \t] 			{ /* eat white spaces */  }
 
 "and"			{ return AND_OP;}
 "or"			{ return OR_OP;}
@@ -27,13 +27,13 @@ int lineno = 0;
 "*"				{ return MUL_OP;}
 "/"				{ return DIV_OP;}
 
-"for"			{ return FOR; }
+"for"			{ printf("encountered for \n"); return FOR; }
 "while"			{ return WHILE; }
 "cout"			{ return OUTPUT; }
-"cin"			{ return INPUT; }
+"cin"			{ printf("encountered cin \n"); return INPUT; }
 "break"			{ return BREAK; }
-"if"			{ return IF; }
-"else"			{ return ELSE; }
+"if"			{ printf("encountered if \n"); return IF; }
+"else"			{ printf("encountered else \n"); return ELSE; }
 
 ":"			    { return FOR_SEPARATE;}
 ","				{ return COMMA;}
@@ -49,8 +49,8 @@ int lineno = 0;
 "<"		 		{ return LT_COMP; }
 ">"		 		{ return GT_COMP; }
 
-[a-zA-Z][a-zA-Z0-9]* 	{ return ID; }
-[0-9][0-9]*				{ yylval = getASTNodeIntLiteral(atoi(yytext));return NUMBER; }
+[a-zA-Z][a-zA-Z0-9]* 	{ yylval = getASTNodeID(yytext); return ID;}
+[0-9][0-9]*				{ yylval = getASTNodeIntLiteral(atoi(yytext)); return NUMBER; }
 
 [$]				{ printf("%c\n",yytext[0]); return DOLLAR; }
 

@@ -43,7 +43,6 @@ extern FILE *yyin;
 
 %token FOR LEFT_BRACKET RIGHT_BRACKET 
 %token FOR_SEPARATE
-%token COMPARATOR
 %token WHILE
 %token IN
 %token INPUT
@@ -68,8 +67,8 @@ Exprs: Expr Exprs
 The statements can be of various types, as given in the CFG rule below.
 */
 
-Expr: assignment
-	| declaration
+Expr: assignment {printPostFix($1);}
+	| declaration {printPostFix($1);}
 	| control_flow_statement
 	| io_statement
 	;
@@ -86,30 +85,30 @@ eg. int a = 5;
 and there is provision for multiple declarations too! eg. int a,b = 5; 
 */
 
-declaration: INT_TYPE multiple_ids SEMICOLON 
-		   | CHAR_TYPE multiple_ids SEMICOLON 
-		   | UINT_TYPE multiple_ids SEMICOLON 
-		   | BOOL_TYPE multiple_ids SEMICOLON 
-		   | STRING_TYPE multiple_ids SEMICOLON 
-		   | ARRAY_TYPE multiple_ids SEMICOLON 
+declaration: INT_TYPE Term ';' { $$ = getASTNodeDeclaration(INTS, $2); }
+		   | CHAR_TYPE ID SEMICOLON { $$ = getASTNodeDeclaration(CHARS, $2); }
+		   | UINT_TYPE ID SEMICOLON { $$ = getASTNodeDeclaration(UINTS, $2); }
+		   | BOOL_TYPE ID SEMICOLON { $$ = getASTNodeDeclaration(BOOLS, $2); }
+		   | STRING_TYPE ID SEMICOLON { $$ = getASTNodeDeclaration(STRINGS, $2); }
+		   | ARRAY_TYPE ID SEMICOLON { $$ = getASTNodeDeclaration(ARRAYS, $2); }
 
-multiple_ids: ID COMMA multiple_ids
-			| ID
+multiple_ids: ID COMMA multiple_ids 
+			| ID { $$ = yylval; }
 
 /* Defining assignment statements
 eg. a = 5;
 */
 
-assignment: ID EQUAL_TO operation SEMICOLON {printPostFix($3);}
+assignment: ID EQUAL_TO operation SEMICOLON { $$ = getASTNodeAssignment($1, $3); }
 		  ;
 
-operation: operation AND_OP Term
-		 | operation OR_OP Term
+operation: operation AND_OP Term { $$ = getASTNodeBinaryOp($1, $3, AND);}
+		 | operation OR_OP Term  { $$ = getASTNodeBinaryOp($1, $3, OR);}
 		 | operation ADD_OP Term { $$ = getASTNodeBinaryOp($1, $3, ADD);}
-		 | operation SUB_OP Term
-		 | operation MUL_OP Term
-		 | operation DIV_OP Term
-		 | Term 				 { $$ = $1;}
+		 | operation SUB_OP Term { $$ = getASTNodeBinaryOp($1, $3, SUB);}
+		 | operation MUL_OP Term { $$ = getASTNodeBinaryOp($1, $3, MUL);}
+		 | operation DIV_OP Term { $$ = getASTNodeBinaryOp($1, $3, DIV);}
+		 | Term 				 { $$ = $1; printPostFix($1); printf("dfabdfabd\n");}
 		 | UNARY_OP Term 
 		 ;
 
@@ -132,19 +131,23 @@ eg. if[a<5] { } else { }
 	for var in [1:3:1] { } 
 */
 
-condition: operation COMPARATOR operation 
+condition: operation EQ_COMP operation { $$ = getASTNodeCondition($1, $3, EQ);}
+		 | operation LE_COMP operation { $$ = getASTNodeCondition($1, $3, LE);}
+		 | operation GE_COMP operation { $$ = getASTNodeCondition($1, $3, GE);}
+		 | operation LT_COMP operation { $$ = getASTNodeCondition($1, $3, LT);}
+		 | operation GT_COMP operation { $$ = getASTNodeCondition($1, $3, GT);}
 
-for_statement: FOR variable IN for_loop '{' Exprs '}'
-for_loop: LEFT_BRACKET Term FOR_SEPARATE Term FOR_SEPARATE Term RIGHT_BRACKET 
+for_statement: FOR variable IN for_loop '{' Exprs '}' {printPostFix($4);}
+for_loop: LEFT_BRACKET Term FOR_SEPARATE Term FOR_SEPARATE Term RIGHT_BRACKET {$$=getASTNodeForLoop($2, $4, $6);}
 			   
 
-while_statement: WHILE LEFT_BRACKET condition RIGHT_BRACKET '{' Exprs '}'
+while_statement: WHILE LEFT_BRACKET condition RIGHT_BRACKET '{' Exprs '}' 
 
-if_statement: IF LEFT_BRACKET condition RIGHT_BRACKET '{' Exprs '}'
+if_statement: IF LEFT_BRACKET condition RIGHT_BRACKET '{' Exprs '}' 
 			| IF LEFT_BRACKET condition RIGHT_BRACKET '{' Exprs '}' ELSE '{' Exprs '}'
 
 Term: NUMBER { $$ = yylval; }
-	| ID
+	| ID { $$ = yylval; }
 	;
 
 variable: ID
@@ -157,10 +160,11 @@ yyerror(char *s)
 }
 
 
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
         yyparse();
         printf("Parsing Over\n");
+        return 0;
 }
 
 
