@@ -1,11 +1,14 @@
 %{
 #include <stdio.h>
 #include "ast.h"
+#include "Interpreter.h"
 #define YYSTYPE struct ASTNode *
 
 extern int yylex();
 extern int yyparse();
 extern FILE *yyin;
+void yyerror(char *s);
+void evaluate(what_it_returns temp);
 %}
 
 %{
@@ -57,10 +60,10 @@ After every substitution rule, the stuff inside the brackets: { } is C code.
 Any code written in this language must end with a '$' symbol. 
 */
 
-Goal:  Exprs DOLLAR { printf("Rule accepted \n"); printPostFix($1); return 0;}
+Goal:  Exprs DOLLAR { printf("Rule accepted \n"); return 0;}
 	 | DOLLAR {printf("Rule accepted"); return 0;}
 
-Exprs: Expr Exprs { $$ = getASTNodeExpression($1, $2);}
+Exprs: Expr Exprs { $$ = getASTNodeExpression($1, $2); }
      | Expr { $$ = $1; }
      ;
 
@@ -68,8 +71,8 @@ Exprs: Expr Exprs { $$ = getASTNodeExpression($1, $2);}
 The statements can be of various types, as given in the CFG rule below.
 */
 
-Expr: assignment {$$ = $1;}
-	| declaration {$$ = $1;}
+Expr: assignment { $$ = $1; what_it_returns temp = interpret($1); evaluate(temp);}
+	| declaration { $$ = $1; what_it_returns temp = interpret($1);  }
 	| control_flow_statement
 	| io_statement
 	;
@@ -156,17 +159,30 @@ Term: NUMBER { $$ = yylval; }
 variable: ID {$$ = yylval;}
 %%
 
-yyerror(char *s)
+void yyerror(char *s)
 {
-        fprintf(stderr, "error: %s\n", s);
+    fprintf(stderr, "error: %s\n", s);
 }
 
+void evaluate(what_it_returns obj)
+{
+	switch (obj.return_type)
+	{
+		case INT_RET: 
+			cout<<obj.int_value<<endl;
+			break;
+		case BOOL_RET: 
+			cout<<obj.bool_value<<endl;
+			break;
+	}
+
+}
 
 int main(int argc, char **argv)
 {
-        yyparse();
-        printf("Parsing Over\n");
-        return 0;
+    yyparse();
+    printf("Parsing Over\n");
+    return 0;
 }
 
 

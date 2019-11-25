@@ -14,7 +14,7 @@ typedef enum  datatype {INTS, CHARS, UINTS, BOOLS, STRINGS, ARRAYS } DataType;
 
 extern struct ASTNode *getASTNodeBinaryOp(struct ASTNode *left, 
 										  struct ASTNode *right, 
-										  BinaryOpType operator);
+										  BinaryOpType opera);
 
 extern struct ASTNode *getASTNodeAssignment(struct ASTNode *left, 
 											struct ASTNode *right);
@@ -25,9 +25,9 @@ extern struct ASTNode *getASTNodeForLoop(struct ASTNode *start,
 
 extern struct ASTNode *getASTNodeCondition(struct ASTNode *left, 				
 										   struct ASTNode *right, 
-										   CondOpType operator);
+										   CondOpType opera);
 
-extern struct ASTNode *getASTNodeDeclaration(DataType operator, 
+extern struct ASTNode *getASTNodeDeclaration(DataType opera, 
 											 struct ASTNode *right);
 
 extern struct ASTNode *getASTNodeExpression(struct ASTNode *left, 
