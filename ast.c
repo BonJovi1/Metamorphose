@@ -29,6 +29,18 @@ struct ASTNode *getASTNodeAssignment(struct ASTNode *left, struct ASTNode *right
 	return node;
 }
 
+struct ASTNode *getASTNodeExpression(struct ASTNode *left, struct ASTNode *right)
+{
+	struct ASTNode *node; 
+	node = (struct ASTNode *) malloc(sizeof(struct ASTNode));
+
+	node->nodetype = expression;
+	
+	node->expression_node.left = left;
+	node->expression_node.right = right;
+	return node;
+}
+
 struct ASTNode *getASTNodeBinaryOp(struct ASTNode *left, struct ASTNode *right, BinaryOpType operator)
 {
 	struct ASTNode *node; 
@@ -64,8 +76,9 @@ struct ASTNode *getASTNodeDeclaration(DataType operator, struct ASTNode *right)
 
 	node->nodetype = declaration;
 	
-	node->declaration_node.right = right;
 	node->declaration_node.op = operator;
+	node->declaration_node.right = right;
+	
 
 	return node;
 }
@@ -105,7 +118,6 @@ struct ASTNode *getASTNodeID(char* str)
 
 	node->nodetype = identifier;
 	node->identifier_node = str;
-	printf("alok %s\n",node->identifier_node);
 
 	return node;
 }
@@ -139,11 +151,8 @@ void printPostFix(struct ASTNode *root)
 		// 				break;
 		case INTLITERAL:
 						printf("%d ", root->litval);
-						// printf("\n");
 						break;
 		case Assignment:
-						// printf("Assignment Operation\n");
-						
 						printPostFix(root->assignment_node.left);
 						printPostFix(root->assignment_node.right);
 						printf("\n");
@@ -176,14 +185,17 @@ void printPostFix(struct ASTNode *root)
 						printf("\n");
 						break;
 		case identifier:
-						printf("identifier ");
-						printf("%s", root->identifier_node);
+						printf("%s ", root->identifier_node);
+						printf("\n");
+						break;
+		case expression:
+						// printf("For Loop\n");	
+						printPostFix(root->expression_node.left);
+						printPostFix(root->expression_node.right);
 						printf("\n");
 						break;
 		case declaration:
-						printf("Declaration\n");
-						
-						printPostFix(root->declaration_node.right);
+						// printf("Declaration\n");
 						switch (root->declaration_node.op) 
 						{
 							case INTS: printf("int ");
@@ -199,8 +211,31 @@ void printPostFix(struct ASTNode *root)
 							case ARRAYS: printf("array ");
 									break;
 						}
+						printPostFix(root->declaration_node.right);
 						printf("\n");
 						break;
 
 	}
 };
+
+// int interpret(struct ASTNode *root)
+// {
+// 	switch (root->nodetype) 
+// 	{
+// 		case BinaryOp:
+// 						switch (root->binarynode.op) 
+// 						{
+// 							case ADD: return(root->binarynode.left + root->binarynode.right);
+// 									  break; 
+// 							case SUB: return(root->binarynode.left - root->binarynode.right);
+// 									  break;
+// 							case MUL: return(root->binarynode.left * root->binarynode.right);
+// 									  break;
+// 							case DIV: return(root->binarynode.left / root->binarynode.right);
+// 									  break;
+// 						}
+// 						// printf("\n");
+// 						break;
+
+// 	}
+// };
