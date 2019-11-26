@@ -2,6 +2,7 @@ typedef enum  astnodetype { BinaryOp,
 							INTLITERAL, 
 							Assignment, 
 							ForLoop, 
+							ForStatement,
 							Condition, 
 							identifier,
 							declaration,
@@ -22,6 +23,10 @@ extern struct ASTNode *getASTNodeAssignment(struct ASTNode *left,
 extern struct ASTNode *getASTNodeForLoop(struct ASTNode *start, 
 										 struct ASTNode *end, 
 										 struct ASTNode *increment);
+
+extern struct ASTNode *getASTNodeForStatement(struct ASTNode *left, 
+										 struct ASTNode *right, 
+										 struct ASTNode *center);
 
 extern struct ASTNode *getASTNodeCondition(struct ASTNode *left, 				
 										   struct ASTNode *right, 
@@ -81,6 +86,14 @@ struct ASTNode {
 			struct ASTNode *end;
 			struct ASTNode *increment;
 		} forloop_node;
+
+		//for loop statement
+		struct
+		{
+			struct ASTNode *left;
+			struct ASTNode *center;
+			struct ASTNode *right;
+		} forstatement_node;
 
 		//expression
 		struct 

@@ -1,5 +1,7 @@
-int N, K;
-cin{N, K};
+int N;
+int K;
+N = 3;
+K = 5;
 int sum;
 sum = 0;
 for i in [1:N:1] 

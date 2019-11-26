@@ -77,7 +77,7 @@ Expr: assignment { $$ = $1; what_it_returns temp = interpret($1); evaluate(temp)
 	| io_statement
 	;
 
-control_flow_statement: for_statement
+control_flow_statement: for_statement {what_it_returns temp = interpret($1); evaluate(temp);}
 					  | while_statement
 					  | if_statement
 
@@ -143,7 +143,7 @@ condition: operation EQ_COMP operation { $$ = getASTNodeCondition($1, $3, EQ);}
 		 | operation LT_COMP operation { $$ = getASTNodeCondition($1, $3, LT);}
 		 | operation GT_COMP operation { $$ = getASTNodeCondition($1, $3, GT);}
 
-for_statement: FOR variable IN for_loop '{' Exprs '}' 
+for_statement: FOR variable IN for_loop '{' Exprs '}' {$$ = getASTNodeForStatement($2, $4, $6); }
 for_loop: LEFT_BRACKET Term FOR_SEPARATE Term FOR_SEPARATE Term RIGHT_BRACKET {$$=getASTNodeForLoop($2, $4, $6);}
 			   
 

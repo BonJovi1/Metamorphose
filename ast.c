@@ -16,6 +16,20 @@ struct ASTNode *getASTNodeForLoop(struct ASTNode *start, struct ASTNode *end, st
 	return node;
 }
 
+struct ASTNode *getASTNodeForStatement(struct ASTNode *left, struct ASTNode *center, struct ASTNode *right)
+{
+	struct ASTNode *node; 
+	node = (struct ASTNode *) malloc(sizeof(struct ASTNode));
+
+	node->nodetype = ForStatement;
+
+	node->forstatement_node.left = left;
+	node->forstatement_node.center = center;
+	node->forstatement_node.right = right;
+
+	return node;
+}
+
 struct ASTNode *getASTNodeAssignment(struct ASTNode *left, struct ASTNode *right)
 {
 	struct ASTNode *node; 

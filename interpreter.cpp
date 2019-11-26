@@ -24,30 +24,23 @@ what_it_returns interpret(struct ASTNode *root)
 			what_it_returns temp;
 			temp.return_type = INT_RET;
 			temp.int_value = 0;
-			// temp = interpret(root->declaration_node.right);
-			// string var = root->declaration_node.right->identifier_node;
+
 			symbol_table[root->declaration_node.right->identifier_node] = temp;
-			// .insert(make_pair(var, temp));
+			
 			return temp;
-			// 
-			// return temp;
 			break;
 
 		case Assignment:
 
 			temp = interpret(root->assignment_node.right);
 			
+			//checking if variable is there in the symbol table
 			if(symbol_table.find(root->assignment_node.left->identifier_node) == symbol_table.end())
 			{
 				cout<<"Variable not declared :";
 				break;
 			}
 			symbol_table[root->assignment_node.left->identifier_node] = temp;
-			// for(auto k:symbol_table)
-			// {
-			// 	cout<<k.first<< " ";
-			// 	cout<<k.second.int_value<<endl;
-			// }
 			return temp;
 			break;
 
@@ -83,6 +76,40 @@ what_it_returns interpret(struct ASTNode *root)
 		// 	}
 		// 	break;
 		
+		case ForStatement:
+
+			// checking if loop_variable is declared 
+			temp = interpret(root->forstatement_node.left);
+
+			char* loop_variable; 
+			loop_variable = root->forstatement_node.left->identifier_node; // the loop variable 
+			
+			/* ------------------------------------------------------------------------------
+			Interpreting the for loop boundary conditions
+			Ideally, should've written another recursive function for this, but no time xD 
+			---------------------------------------------------------------------------------*/
+			int start, end, increment;
+
+			start = root->forstatement_node.center->forloop_node.start->litval;
+			end = root->forstatement_node.center->forloop_node.end->litval;
+			increment = root->forstatement_node.center->forloop_node.increment->litval;
+
+			temp.return_type = INT_RET;
+			temp.int_value = start;
+			symbol_table[loop_variable] = temp;
+
+			while(symbol_table[loop_variable].int_value < end)
+			{
+				temp = interpret(root->forstatement_node.right);
+				symbol_table[loop_variable].int_value = symbol_table[loop_variable].int_value + increment; 
+			}
+
+			return temp;
+			break;
+			
+			// root->forstatement_node.center
+
+
 		case INTLITERAL:
 			what_it_returns obj;
 			obj.return_type = INT_RET;
@@ -104,3 +131,12 @@ what_it_returns interpret(struct ASTNode *root)
 
 	}
 };
+
+
+/* Printing the symbol table out
+for(auto k:symbol_table)              
+{
+	cout<<k.first<< " ";
+	cout<<k.second.int_value<<endl;
+}
+-------------------------------*/
