@@ -19,35 +19,19 @@ void evaluate(what_it_returns temp);
 %token NUMBER ID
 %token IF ELSE 
 
-%token INT_TYPE
-%token CHAR_TYPE
-%token BOOL_TYPE
-%token UINT_TYPE
-%token STRING_TYPE
-%token ARRAY_TYPE 2DARRAY_TYPE
+%token INT_TYPE CHAR_TYPE BOOL_TYPE UINT_TYPE STRING_TYPE  
 
 %token SEMICOLON
 %token EQUAL_TO
 %token DOLLAR
 
-%token UNARY_OP
-%token AND_OP
-%token OR_OP
-%token ADD_OP
-%token SUB_OP
-%token MUL_OP
-%token DIV_OP
+%token UNARY_OP AND_OP OR_OP ADD_OP SUB_OP MUL_OP DIV_OP
+%token EQ_COMP LE_COMP GE_COMP LT_COMP GT_COMP
 
-%token EQ_COMP
-%token LE_COMP
-%token GE_COMP
-%token LT_COMP
-%token GT_COMP
 
-%token FOR LEFT_BRACKET RIGHT_BRACKET 
-%token FOR_SEPARATE
+%token FOR LEFT_BRACKET RIGHT_BRACKET FOR_SEPARATE IN
 %token WHILE
-%token IN
+
 %token INPUT
 %token OUTPUT
 %token COMMA
@@ -60,29 +44,37 @@ After every substitution rule, the stuff inside the brackets: { } is C code.
 Any code written in this language must end with a '$' symbol. 
 */
 
-Goal:  Exprs DOLLAR { printf("Rule accepted \n"); return 0;}
-	 | DOLLAR {printf("Rule accepted"); return 0;}
+Goal: 
+	  | Goal control_flow_statement {what_it_returns temp = interpret($2); }
+	  | Goal Expr  { what_it_returns temp = interpret($2); }
 
+// goal :(goal) expr | decl| conflow | io | func
 Exprs: Expr Exprs { $$ = getASTNodeExpression($1, $2); }
      | Expr { $$ = $1; }
+     | control_flow_statement {$$ = $1; }
+     | control_flow_statement Exprs 
      ;
 
 /* An Expression would comprise of multiple statements. 
 The statements can be of various types, as given in the CFG rule below.
 */
 
-Expr: assignment { $$ = $1; what_it_returns temp = interpret($1); evaluate(temp);}
-	| declaration { $$ = $1; what_it_returns temp = interpret($1);  }
-	| control_flow_statement
-	| io_statement
+// { $$ = $1; what_it_returns temp = interpret($1); evaluate(temp);}
+// { $$ = $1; what_it_returns temp = interpret($1);  }
+Expr: assignment { $$ = $1; }
+	| declaration { $$ = $1; }
+	| io_statement { $$ = $1; }
+	| function_definition
+	| function_call
+	//| control_flow_statement {$$ = $1;}
 	;
 
-control_flow_statement: for_statement {what_it_returns temp = interpret($1); evaluate(temp);}
+control_flow_statement: for_statement {$$ = $1; }
 					  | while_statement
-					  | if_statement
+					  | if_statement {$$ = $1;  }
 
-io_statement: print_statement
-			| scan_statement
+io_statement: print_statement {$$ = $1; }
+			| scan_statement 
 
 /* Defining declaration statements
 eg. int a;
@@ -94,18 +86,18 @@ declaration: INT_TYPE variable SEMICOLON { $$ = getASTNodeDeclaration(INTS, $2);
 		   | UINT_TYPE variable SEMICOLON { $$ = getASTNodeDeclaration(UINTS, $2); }
 		   | BOOL_TYPE variable SEMICOLON { $$ = getASTNodeDeclaration(BOOLS, $2); }
 		   | STRING_TYPE variable SEMICOLON { $$ = getASTNodeDeclaration(STRINGS, $2); }
-		   | ARRAY_TYPE variable SEMICOLON { $$ = getASTNodeDeclaration(ARRAYS, $2); }
+		   | INT_TYPE variable LEFT_BRACKET Term RIGHT_BRACKET 
+		   	 SEMICOLON { $$ = getASTNodeArrayDeclaration($2, $4); }
 		   ;
 
-// multiple_ids: variable COMMA multiple_ids 
-// 			| variable {$$ = $1;}
-// 			;
 
 /* Defining assignment statements
 eg. a = 5;
 */
 
 assignment: variable EQUAL_TO operation SEMICOLON { $$ = getASTNodeAssignment($1, $3); }
+		  | variable LEFT_BRACKET operation RIGHT_BRACKET 
+		  	EQUAL_TO operation SEMICOLON { $$ = getASTNodeArrayAssignment($1, $3, $6); }
 		  ;
 
 operation: operation AND_OP Term { $$ = getASTNodeBinaryOp($1, $3, AND);}
@@ -122,14 +114,31 @@ operation: operation AND_OP Term { $$ = getASTNodeBinaryOp($1, $3, AND);}
 eg. cout{a}; cin{n, k};
 */
 
-print_statement: OUTPUT '{' prints_possibilities '}' SEMICOLON
+print_statement: OUTPUT '(' Term ')' SEMICOLON { $$ = getASTNodePrint($3); }
 scan_statement:  INPUT '{' variable '}' SEMICOLON
 
-prints_possibilities: prints prints_possibilities
-					| prints
+// prints_possibilities: prints prints_possibilities
+// 					| prints
 					
-prints: variable
-	  | Exprs
+// prints: variable
+// 	  | Exprs
+
+/* Defining Function declarations and calls
+eg. func add(a, b) { return a+b; }
+	add(2,3);
+*/
+
+multiple_ids: variable COMMA multiple_ids 
+			| variable {$$ = $1;}
+			;
+
+multiple_args: Term COMMA multiple_args 
+			| Term {$$ = $1;}
+			;
+
+function_definition: FUNC variable '(' multiple_ids ')' '{' Exprs '}'
+function_call: variable '(' multiple_args ')' SEMICOLON
+
 
 /* Defining Control Flow statements
 eg. if[a<5] { } else { }
@@ -146,14 +155,14 @@ condition: operation EQ_COMP operation { $$ = getASTNodeCondition($1, $3, EQ);}
 for_statement: FOR variable IN for_loop '{' Exprs '}' {$$ = getASTNodeForStatement($2, $4, $6); }
 for_loop: LEFT_BRACKET Term FOR_SEPARATE Term FOR_SEPARATE Term RIGHT_BRACKET {$$=getASTNodeForLoop($2, $4, $6);}
 			   
-
 while_statement: WHILE LEFT_BRACKET condition RIGHT_BRACKET '{' Exprs '}' 
 
-if_statement: IF LEFT_BRACKET condition RIGHT_BRACKET '{' Exprs '}' 
-			| IF LEFT_BRACKET condition RIGHT_BRACKET '{' Exprs '}' ELSE '{' Exprs '}'
+if_statement: IF LEFT_BRACKET condition RIGHT_BRACKET '{' Exprs '}' {$$ = getASTNodeIfStatement($3, $6); }
+			// | IF LEFT_BRACKET condition RIGHT_BRACKET '{' Exprs '}' ELSE '{' Exprs '}' FI
 
 Term: NUMBER { $$ = yylval; }
 	| variable { $$ = $1; }
+	| variable LEFT_BRACKET operation RIGHT_BRACKET { $$ = getASTNodeArrayVariable($1, $3); }
 	;
 
 variable: ID {$$ = yylval;}
@@ -174,6 +183,13 @@ void evaluate(what_it_returns obj)
 		case BOOL_RET: 
 			cout<<obj.bool_value<<endl;
 			break;
+		case ARRAY_RET:
+			for(int i=0; i<5; i++ )
+				cout<<obj.array_value.arr[i]<<" ";
+			cout<<endl;
+			break;
+		case MESSAGE_RET:
+			cout<<obj.message;
 	}
 
 }
@@ -184,6 +200,3 @@ int main(int argc, char **argv)
     printf("Parsing Over\n");
     return 0;
 }
-
-
-

@@ -14,7 +14,6 @@ int lineno = 0;
 "uint" 			{printf("encountered uint \n"); return UINT_TYPE;}
 "bool" 			{return BOOL_TYPE;}
 "string" 		{return STRING_TYPE;}
-"array[]" 		{return ARRAY_TYPE;}
 
 ";" 			{return SEMICOLON;}
 "="				{return EQUAL_TO;}
@@ -42,6 +41,8 @@ int lineno = 0;
 "]"				{ return RIGHT_BRACKET; }	
 "{"				{ return '{'; }
 "}"				{ return '}'; }	
+"("				{ return '('; }
+")"				{ return ')'; }
 
 "in"			{ return IN; }
 "=="		 	{ return EQ_COMP; }

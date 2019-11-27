@@ -1,0 +1,23 @@
+int N;
+int i;
+int j;
+int a[5];
+a[0] = 2;
+a[1] = 4;
+a[2] = 1;
+a[3] = 3;
+a[4] = 5;
+int temp;
+for i in [0:4:1]
+{	
+	for j in [0:4:1]
+	{
+		if[a[j] > a[j+1]]
+		{
+			temp = a[j];
+			a[j] = a[j+1];
+			a[j+1] = temp;
+		}
+	}	
+}
+cout(a);

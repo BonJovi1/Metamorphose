@@ -9,16 +9,17 @@
 
 using namespace std;
 
-// Initializing symbol tables
 map<string, what_it_returns> symbol_table;
 
 what_it_returns interpret(struct ASTNode *root)
 {
 	switch (root->nodetype) 
 	{
-		// case expression:
-		// 	interpret(root->expression_node.left);
-		// 	interpret(root->expression_node.right);
+		case expression:
+			what_it_returns lol1, lol2;
+			lol1 = interpret(root->expression_node.left); 
+			lol2 = interpret(root->expression_node.right); 
+			return lol2;
 
 		case declaration:
 			what_it_returns temp;
@@ -26,6 +27,16 @@ what_it_returns interpret(struct ASTNode *root)
 			temp.int_value = 0;
 
 			symbol_table[root->declaration_node.right->identifier_node] = temp;
+			
+			return temp;
+			break;
+
+		case arraydeclaration:
+			
+			temp.return_type = ARRAY_RET;
+			temp.array_value.no_of_elements = root->arraydeclaration_node.right->litval;
+
+			symbol_table[root->arraydeclaration_node.left->identifier_node] = temp;
 			
 			return temp;
 			break;
@@ -42,6 +53,37 @@ what_it_returns interpret(struct ASTNode *root)
 			}
 			symbol_table[root->assignment_node.left->identifier_node] = temp;
 			return temp;
+			break;
+
+		case ArrayAssignment:
+
+			temp = interpret(root->arrayassignment_node.right);
+			//checking if array variable is there in the symbol table
+			if(symbol_table.find(root->arrayassignment_node.left->identifier_node) == symbol_table.end())
+			{
+				cout<<"Variable not declared :";
+				break;
+			}
+
+			char* arrayname;
+			int newvalue;
+			arrayname = root->arrayassignment_node.left->identifier_node;
+			newvalue = temp.int_value;
+			
+			struct ASTNode *location;
+			location = root->arrayassignment_node.center;
+			temp = interpret(location);
+			
+			int locvalue;
+			if(location->nodetype == INTLITERAL)
+				locvalue = location->litval;
+			else if(location->nodetype == identifier)
+				locvalue = symbol_table[location->identifier_node].int_value; 
+			else
+				locvalue = temp.int_value;
+			
+			symbol_table[arrayname].array_value.arr[locvalue] = newvalue;
+			return symbol_table[arrayname];
 			break;
 
 		case BinaryOp:
@@ -65,16 +107,44 @@ what_it_returns interpret(struct ASTNode *root)
 			}
 			break;
 
-		// case Condition:
-		// 	switch (root->condition_node.op) 
-		// 	{
-		// 		case EQ: 
-		// 			if(interpret(root->condition_node.left) == interpret(root->condition_node.right) ) 
-		// 				return 1;
-		// 			else
-		// 				return 0;
-		// 	}
-		// 	break;
+		case Condition:
+			a = interpret(root->condition_node.left);
+			b = interpret(root->condition_node.right);
+			// cout<<"left value = "<< a.int_value;
+			// cout<<endl;
+			// cout<<"right value = "<< b.int_value;
+			// cout<<endl;
+			final.return_type = BOOL_RET;
+			switch (root->condition_node.op) 
+			{
+				case EQ: 	
+					final.return_type = BOOL_RET;
+					if(a.int_value == b.int_value)
+						final.bool_value = 1;
+					else
+						final.bool_value = 0;
+					return(final);
+					break;
+
+				case LT: 	
+					final.return_type = BOOL_RET;
+					if(a.int_value < b.int_value)
+						final.bool_value = 1;
+					else
+						final.bool_value = 0;
+					return(final);
+					break;
+
+				case GT: 	
+					final.return_type = BOOL_RET;
+					if(a.int_value > b.int_value)
+						final.bool_value = 1;
+					else
+						final.bool_value = 0;
+					return(final);
+					break;
+			}
+			break;
 		
 		case ForStatement:
 
@@ -100,14 +170,33 @@ what_it_returns interpret(struct ASTNode *root)
 
 			while(symbol_table[loop_variable].int_value < end)
 			{
-				temp = interpret(root->forstatement_node.right);
+				// cout<<"Iteration"<<endl;
+				a = interpret(root->forstatement_node.right);
 				symbol_table[loop_variable].int_value = symbol_table[loop_variable].int_value + increment; 
 			}
 
-			return temp;
+			// cout<<"ANSWER: "<<a.int_value;
+			return a;
 			break;
 			
-			// root->forstatement_node.center
+		case IfStatement:
+			what_it_returns temp_condition, temp_exprs;
+			temp_condition = interpret(root->ifstatement_node.left);
+			// cout<< " Condition Result "<< temp_condition.bool_value << endl;
+			if(temp_condition.bool_value == (1==1))
+			{
+				// cout<<"BON JOVI"<<endl;
+				temp_exprs = interpret(root->ifstatement_node.right);
+				return temp_exprs;
+			}
+			else
+			{
+				// cout<<"ALOK"<<endl;
+				what_it_returns tempnew;
+				tempnew.return_type = MESSAGE_RET;
+				tempnew.message = "if statement condition not satisfied";
+				return tempnew;
+			}
 
 
 		case INTLITERAL:
@@ -118,7 +207,6 @@ what_it_returns interpret(struct ASTNode *root)
 			break;
 
 		case identifier:
-			// cout<<"AGAIN"<<root->identifier_node;
 			if(symbol_table.find(root->identifier_node) == symbol_table.end())
 			{
 				cout<<"Variable not declared :";
@@ -129,8 +217,65 @@ what_it_returns interpret(struct ASTNode *root)
 			return obj;
 			break;
 
+		case arrayvariable:
+			
+			arrayname = root->arrayvariable_node.left->identifier_node;
+			location = root->arrayvariable_node.right;
+			obj = interpret(location);
+			if(symbol_table.find(arrayname) == symbol_table.end())
+			{
+				cout<<"Variable not declared :";
+				break;
+			}
+
+			if(location->nodetype == INTLITERAL)
+				locvalue = location->litval;
+			else if(location->nodetype == identifier)
+				locvalue = symbol_table[location->identifier_node].int_value; 
+			else
+				locvalue = obj.int_value; 
+
+			obj.return_type = ARRAY_RET;
+			obj.int_value = symbol_table[arrayname].array_value.arr[locvalue];
+			return obj;
+			break;
+
+		case Print:
+			location = root->print_node.left;
+			
+			// if(location->nodetype == INTLITERAL)
+			// 	locvalue = location->litval;
+			 
+			what_it_returns lol3;
+			lol3 = symbol_table[location->identifier_node];
+			if(lol3.return_type == ARRAY_RET)
+			{
+				for(int i=0; i<lol3.array_value.no_of_elements; i++ )
+					cout<<lol3.array_value.arr[i]<<" ";
+				cout<<endl;
+			}
+			else
+				cout<<lol3.int_value;
+
+			return lol3;
+			break;
+
+
 	}
 };
+// case INT_RET: 
+//     cout<<obj.int_value<<endl;
+// 	break;
+// case BOOL_RET: 
+// 	cout<<obj.bool_value<<endl;
+// 	break;
+// case ARRAY_RET:
+// 	for(int i=0; i<5; i++ )
+// 		cout<<obj.array_value.arr[i]<<" ";
+// 	cout<<endl;
+// 	break;
+// case MESSAGE_RET:
+// 	cout<<obj.message;
 
 
 /* Printing the symbol table out

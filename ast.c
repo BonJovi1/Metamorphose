@@ -30,6 +30,19 @@ struct ASTNode *getASTNodeForStatement(struct ASTNode *left, struct ASTNode *cen
 	return node;
 }
 
+struct ASTNode *getASTNodeIfStatement(struct ASTNode *left, struct ASTNode *right)
+{
+	struct ASTNode *node; 
+	node = (struct ASTNode *) malloc(sizeof(struct ASTNode));
+
+	node->nodetype = IfStatement;
+
+	node->ifstatement_node.left = left;
+	node->ifstatement_node.right = right;
+
+	return node;
+}
+
 struct ASTNode *getASTNodeAssignment(struct ASTNode *left, struct ASTNode *right)
 {
 	struct ASTNode *node; 
@@ -39,6 +52,20 @@ struct ASTNode *getASTNodeAssignment(struct ASTNode *left, struct ASTNode *right
 
 	node->assignment_node.left = left;
 	node->assignment_node.right = right;
+
+	return node;
+}
+
+struct ASTNode *getASTNodeArrayAssignment(struct ASTNode *left, struct ASTNode *center, struct ASTNode *right)
+{
+	struct ASTNode *node; 
+	node = (struct ASTNode *) malloc(sizeof(struct ASTNode));
+
+	node->nodetype = ArrayAssignment;
+
+	node->arrayassignment_node.left = left;
+	node->arrayassignment_node.center = center;
+	node->arrayassignment_node.right = right;
 
 	return node;
 }
@@ -96,6 +123,32 @@ struct ASTNode *getASTNodeDeclaration(DataType opera, struct ASTNode *right)
 	return node;
 }
 
+struct ASTNode *getASTNodeArrayDeclaration(struct ASTNode *left, struct ASTNode *right)
+{
+	struct ASTNode *node; 
+	node = (struct ASTNode *) malloc(sizeof(struct ASTNode));
+
+	node->nodetype = arraydeclaration;
+
+	node->arraydeclaration_node.left = left;
+	node->arraydeclaration_node.right = right;
+
+	return node;
+}
+
+struct ASTNode *getASTNodeArrayVariable(struct ASTNode *left, struct ASTNode *right)
+{
+	struct ASTNode *node; 
+	node = (struct ASTNode *) malloc(sizeof(struct ASTNode));
+
+	node->nodetype = arrayvariable;
+
+	node->arrayvariable_node.left = left;
+	node->arrayvariable_node.right = right;
+
+	return node;
+}
+
 
 // struct ASTNode *getASTNodeTernaryOp(struct ASTNode *first, 
 // 									struct ASTNode *second,
@@ -131,6 +184,17 @@ struct ASTNode *getASTNodeID(char* str)
 
 	node->nodetype = identifier;
 	node->identifier_node = str;
+
+	return node;
+}
+
+struct ASTNode *getASTNodePrint(struct ASTNode *root)
+{
+	struct ASTNode *node; 
+	node = (struct ASTNode *) malloc(sizeof(struct ASTNode));
+
+	node->nodetype = Print;
+	node->print_node.left = root;
 
 	return node;
 }
