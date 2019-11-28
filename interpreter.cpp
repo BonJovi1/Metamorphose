@@ -23,8 +23,8 @@ what_it_returns interpret(struct ASTNode *root)
 
 		case declaration:
 			what_it_returns temp;
-			temp.return_type = INT_RET;
-			temp.int_value = 0;
+			temp.return_type = NOTHING_RET;
+			temp.nothing_value = 0;
 
 			symbol_table[root->declaration_node.right->identifier_node] = temp;
 			
@@ -48,7 +48,8 @@ what_it_returns interpret(struct ASTNode *root)
 			//checking if variable is there in the symbol table
 			if(symbol_table.find(root->assignment_node.left->identifier_node) == symbol_table.end())
 			{
-				cout<<"Variable not declared :";
+				cout<<"Variable not declared :("<<endl;
+				exit(0);
 				break;
 			}
 			symbol_table[root->assignment_node.left->identifier_node] = temp;
@@ -61,7 +62,8 @@ what_it_returns interpret(struct ASTNode *root)
 			//checking if array variable is there in the symbol table
 			if(symbol_table.find(root->arrayassignment_node.left->identifier_node) == symbol_table.end())
 			{
-				cout<<"Variable not declared :";
+				cout<<"Variable not declared :("<<endl;
+				exit(0);
 				break;
 			}
 
@@ -97,6 +99,31 @@ what_it_returns interpret(struct ASTNode *root)
 					final.int_value = (a.int_value + b.int_value);
 					return(final);
 					break;
+
+				case SUB: 	
+					final.return_type = INT_RET;
+					final.int_value = (a.int_value - b.int_value);
+					return(final);
+					break;
+
+				case MUL: 	
+					final.return_type = INT_RET;
+					final.int_value = (a.int_value * b.int_value);
+					return(final);
+					break;
+
+				case DIV: 	
+					final.return_type = INT_RET;
+					final.int_value = (a.int_value / b.int_value);
+					return(final);
+					break;
+
+				case MOD:
+					final.return_type = INT_RET;
+					final.int_value = (a.int_value % b.int_value);
+					return(final);
+					break;
+
 
 				case AND: 	
 					final.return_type = INT_RET;
@@ -159,9 +186,14 @@ what_it_returns interpret(struct ASTNode *root)
 			Ideally, should've written another recursive function for this, but no time xD 
 			---------------------------------------------------------------------------------*/
 			int start, end, increment;
+			location = root->forstatement_node.center->forloop_node.end;
 
 			start = root->forstatement_node.center->forloop_node.start->litval;
-			end = root->forstatement_node.center->forloop_node.end->litval;
+			
+			if(root->forstatement_node.center->forloop_node.end->nodetype == INTLITERAL)
+				end = location->litval;
+			else
+				end = symbol_table[location->identifier_node].int_value; 
 			increment = root->forstatement_node.center->forloop_node.increment->litval;
 
 			temp.return_type = INT_RET;
@@ -172,12 +204,25 @@ what_it_returns interpret(struct ASTNode *root)
 			{
 				// cout<<"Iteration"<<endl;
 				a = interpret(root->forstatement_node.right);
+				if(a.return_type == BREAK_RET)
+				{
+					// cout<<"BREAKING"<<endl;
+					break;
+				}
+				else
+					// cout<<"GO ON"<<endl;
 				symbol_table[loop_variable].int_value = symbol_table[loop_variable].int_value + increment; 
 			}
 
 			// cout<<"ANSWER: "<<a.int_value;
 			return a;
 			break;
+
+		case Break:
+			what_it_returns break_obj;
+			break_obj.nothing_value = 0;
+			break_obj.return_type = BREAK_RET;
+			return break_obj;
 			
 		case IfStatement:
 			what_it_returns temp_condition, temp_exprs;
@@ -197,6 +242,24 @@ what_it_returns interpret(struct ASTNode *root)
 				tempnew.message = "if statement condition not satisfied";
 				return tempnew;
 			}
+			break;
+
+		case IfElseStatement:
+			what_it_returns temp2_exprs;
+			temp_condition = interpret(root->ifelse_node.left);
+			// cout<< " Condition Result "<< temp_condition.bool_value << endl;
+			if(temp_condition.bool_value == (1==1))
+			{
+				// cout<<"BON JOVI"<<endl;
+				temp_exprs = interpret(root->ifelse_node.center);
+				return temp_exprs;
+			}
+			else
+			{
+				temp2_exprs = interpret(root->ifelse_node.right);
+				return temp2_exprs;
+			}
+			break;
 
 
 		case INTLITERAL:
@@ -209,13 +272,20 @@ what_it_returns interpret(struct ASTNode *root)
 		case identifier:
 			if(symbol_table.find(root->identifier_node) == symbol_table.end())
 			{
-				cout<<"Variable not declared :";
+				obj.return_type = PRINT_RET;
+				obj.print_value = root->identifier_node;
+				return obj;
 				break;
 			}
 			obj.return_type = ID_RET;
 			obj.int_value = symbol_table[root->identifier_node].int_value ;
 			return obj;
 			break;
+
+		case MultipleID:
+			a = interpret(root->multipleid_node.left);
+			b = interpret(root->multipleid_node.right);
+			return b; 
 
 		case arrayvariable:
 			
@@ -224,7 +294,8 @@ what_it_returns interpret(struct ASTNode *root)
 			obj = interpret(location);
 			if(symbol_table.find(arrayname) == symbol_table.end())
 			{
-				cout<<"Variable not declared :";
+				cout<<"Variable not declared :("<<endl;
+				exit(0);
 				break;
 			}
 
@@ -245,8 +316,21 @@ what_it_returns interpret(struct ASTNode *root)
 			
 			// if(location->nodetype == INTLITERAL)
 			// 	locvalue = location->litval;
-			 
+			// if(symbol_table.find(location->identifier_node) == symbol_table.end())
+			// {
+			// 	cout<<"Variable not declared"<<endl;
+			// 	exit(0);
+			// 	break;
+			// }
+
 			what_it_returns lol3;
+			lol3 = interpret(location);
+			if(lol3.return_type == PRINT_RET)
+			{
+				cout<<lol3.print_value<<" ";
+				return lol3;
+				break;
+			}
 			lol3 = symbol_table[location->identifier_node];
 			if(lol3.return_type == ARRAY_RET)
 			{
@@ -254,29 +338,39 @@ what_it_returns interpret(struct ASTNode *root)
 					cout<<lol3.array_value.arr[i]<<" ";
 				cout<<endl;
 			}
-			else
-				cout<<lol3.int_value;
-
+			else if(lol3.return_type == INT_RET)
+				cout<<lol3.int_value<<endl;
+			else if(lol3.return_type == NOTHING_RET)
+			{
+				cout<<"variable has not been assigned any value yet"<<endl;
+			}
 			return lol3;
 			break;
 
+		case Scan:
+			location = root->scan_node.left;
+			int input;
+			cin>>input;
 
+			if(symbol_table.find(location->identifier_node) == symbol_table.end())
+			{
+				cout<<"Variable not declared :("<<endl;
+				exit(0);
+				break;
+			}
+
+			lol3.return_type = INT_RET;
+			lol3.int_value = input;
+			symbol_table[location->identifier_node] = lol3;
+			return lol3;
+			break;
+		
+		case PrintPossibilities:
+			lol1 = interpret(root->printpossibilities_node.left);
+			lol2 = interpret(root->printpossibilities_node.right);
+			cout<<lol2.print_value<<endl;
 	}
 };
-// case INT_RET: 
-//     cout<<obj.int_value<<endl;
-// 	break;
-// case BOOL_RET: 
-// 	cout<<obj.bool_value<<endl;
-// 	break;
-// case ARRAY_RET:
-// 	for(int i=0; i<5; i++ )
-// 		cout<<obj.array_value.arr[i]<<" ";
-// 	cout<<endl;
-// 	break;
-// case MESSAGE_RET:
-// 	cout<<obj.message;
-
 
 /* Printing the symbol table out
 for(auto k:symbol_table)              

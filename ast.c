@@ -43,6 +43,21 @@ struct ASTNode *getASTNodeIfStatement(struct ASTNode *left, struct ASTNode *righ
 	return node;
 }
 
+
+struct ASTNode *getASTNodeIfElseStatement(struct ASTNode *left, struct ASTNode *center, struct ASTNode *right)
+{
+	struct ASTNode *node; 
+	node = (struct ASTNode *) malloc(sizeof(struct ASTNode));
+
+	node->nodetype = IfElseStatement;;
+
+	node->ifelse_node.left = left;
+	node->ifelse_node.center = center;
+	node->ifelse_node.right = right;
+
+	return node;
+}
+
 struct ASTNode *getASTNodeAssignment(struct ASTNode *left, struct ASTNode *right)
 {
 	struct ASTNode *node; 
@@ -76,6 +91,18 @@ struct ASTNode *getASTNodeExpression(struct ASTNode *left, struct ASTNode *right
 	node = (struct ASTNode *) malloc(sizeof(struct ASTNode));
 
 	node->nodetype = expression;
+
+	node->expression_node.left = left;
+	node->expression_node.right = right;
+	return node;
+}
+
+struct ASTNode *getASTNodePrintPossibilities(struct ASTNode *left, struct ASTNode *right)
+{
+	struct ASTNode *node; 
+	node = (struct ASTNode *) malloc(sizeof(struct ASTNode));
+
+	node->nodetype = PrintPossibilities;
 
 	node->expression_node.left = left;
 	node->expression_node.right = right;
@@ -188,6 +215,17 @@ struct ASTNode *getASTNodeID(char* str)
 	return node;
 }
 
+struct ASTNode *getASTNodeBreak(char* str)
+{
+	struct ASTNode *node; 
+	node = (struct ASTNode *) malloc(sizeof(struct ASTNode));
+
+	node->nodetype = Break;
+	node->break_node = str;
+
+	return node;
+}
+
 struct ASTNode *getASTNodePrint(struct ASTNode *root)
 {
 	struct ASTNode *node; 
@@ -195,6 +233,30 @@ struct ASTNode *getASTNodePrint(struct ASTNode *root)
 
 	node->nodetype = Print;
 	node->print_node.left = root;
+
+	return node;
+}
+
+struct ASTNode *getASTNodeScan(struct ASTNode *root)
+{
+	struct ASTNode *node; 
+	node = (struct ASTNode *) malloc(sizeof(struct ASTNode));
+
+	node->nodetype = Scan;
+	node->scan_node.left = root;
+
+	return node;
+}
+
+struct ASTNode *getASTNodeMultipleID(struct ASTNode *left, struct ASTNode *right)
+{
+	struct ASTNode *node; 
+	node = (struct ASTNode *) malloc(sizeof(struct ASTNode));
+
+	node->nodetype = MultipleID;
+
+	node->multipleid_node.left = left;
+	node->multipleid_node.right = right;
 
 	return node;
 }

@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-typedef enum returnvaluetype { INT_RET, BOOL_RET, ID_RET, ARRAY_RET, MESSAGE_RET }ReturnValueType; 
+typedef enum returnvaluetype { INT_RET, BOOL_RET, ID_RET, ARRAY_RET, MESSAGE_RET, NOTHING_RET, PRINT_RET, BREAK_RET }ReturnValueType; 
 
 typedef struct Return_Entity
 {
@@ -11,6 +11,8 @@ typedef struct Return_Entity
 		int int_value;
 		bool bool_value;
 		char* id_value;
+		char* print_value;
+		int nothing_value;
 		struct
 		{
 			int arr[100];

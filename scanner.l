@@ -25,13 +25,15 @@ int lineno = 0;
 "-"				{ return SUB_OP;}
 "*"				{ return MUL_OP;}
 "/"				{ return DIV_OP;}
+"%"				{ return MOD_OP;}
 
 "for"			{ return FOR; }
 "while"			{ return WHILE; }
 "cout"			{ return OUTPUT; }
 "cin"			{ return INPUT; }
-"break"			{ return BREAK; }
+"break"			{ yylval = getASTNodeBreak(strdup(yytext)); return BREAK; }
 "if"			{ return IF; }
+"fi"			{ return FI; }
 "else"			{ return ELSE; }
 "func"			{ return FUNC; }
 
@@ -51,7 +53,7 @@ int lineno = 0;
 "<"		 		{ return LT_COMP; }
 ">"		 		{ return GT_COMP; }
 
-[a-zA-Z][a-zA-Z0-9]* 	{ yylval = getASTNodeID(strdup(yytext)); return ID;}
+[a-zA-Z][a-zA-Z0-9]* 	{ yylval = getASTNodeID(strdup(yytext)); return IDD;}
 [0-9][0-9]*				{ yylval = getASTNodeIntLiteral(atoi(yytext)); return NUMBER; }
 
 [$]				{ return DOLLAR; }

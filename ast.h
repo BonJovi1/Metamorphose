@@ -11,10 +11,15 @@ typedef enum  astnodetype { BinaryOp,
 							arraydeclaration,
 							arrayvariable,
 							IfStatement,
-							Print} 
+							IfElseStatement,
+							Print,
+							Scan,
+							PrintPossibilities,
+							Break,
+							MultipleID} 
 							ASTNodeType;
 
-typedef enum  binaryoptype {ADD, SUB, MUL, DIV, AND, OR} BinaryOpType; 
+typedef enum  binaryoptype {ADD, SUB, MUL, DIV, AND, OR, MOD} BinaryOpType; 
 typedef enum  condoptype {EQ, LE, GE, LT, GT} CondOpType; 
 typedef enum  datatype {INTS, CHARS, UINTS, BOOLS, STRINGS, ARRAYS } DataType; 
 
@@ -43,6 +48,10 @@ extern struct ASTNode *getASTNodeForStatement(struct ASTNode *left,
 extern struct ASTNode *getASTNodeIfStatement(struct ASTNode *left, 
 										     struct ASTNode *right);
 
+extern struct ASTNode *getASTNodeIfElseStatement(struct ASTNode *left, 
+										 		struct ASTNode *center, 
+										 		struct ASTNode *right);
+
 extern struct ASTNode *getASTNodeCondition(struct ASTNode *left, 				
 										   struct ASTNode *right, 
 										   CondOpType opera);
@@ -56,9 +65,17 @@ extern struct ASTNode *getASTNodeArrayDeclaration(struct ASTNode *left,
 extern struct ASTNode *getASTNodeExpression(struct ASTNode *left, 
 											struct ASTNode *right);
 
+extern struct ASTNode *getASTNodeMultipleID(struct ASTNode *left, 
+											struct ASTNode *right);
+
+extern struct ASTNode *getASTNodePrintPossibilities(struct ASTNode *left, 
+													struct ASTNode *right);
+
 extern struct ASTNode *getASTNodeIntLiteral(int litval);
 extern struct ASTNode *getASTNodeID(char* str);
+extern struct ASTNode *getASTNodeBreak(char* str);
 extern struct ASTNode *getASTNodePrint(struct ASTNode *root);
+extern struct ASTNode *getASTNodeScan(struct ASTNode *root);
 //extern struct ASTNode *getASTNodeTernaryOp(struct ASTNode *first, struct ASTNode *second, struct ASTNode *third);
 
 extern void printPostFix(struct ASTNode *root);
@@ -143,6 +160,14 @@ struct ASTNode {
 			struct ASTNode *right;
 		} ifstatement_node;
 
+		//if else
+		struct
+		{
+			struct ASTNode *left;
+			struct ASTNode *center;
+			struct ASTNode *right;
+		} ifelse_node;
+
 		//expression
 		struct 
 		{
@@ -150,15 +175,34 @@ struct ASTNode {
 			struct ASTNode *right; 
 		} expression_node;
 
+		struct 
+		{
+			struct ASTNode *left;
+			struct ASTNode *right; 
+		} printpossibilities_node;
+
+		//multiple id
+		struct
+		{
+			struct ASTNode *left;
+			struct ASTNode *right;
+		} multipleid_node;
+
 		//numbers
 		int litval;
 
 		char* identifier_node;
+		char* break_node;
 
 		struct 
 		{
 			struct ASTNode *left;
 		} print_node;
+
+		struct 
+		{
+			struct ASTNode *left;
+		} scan_node;
 	};
 
 };

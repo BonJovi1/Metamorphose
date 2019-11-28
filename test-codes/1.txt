@@ -9,11 +9,10 @@ for i in [1:N:1]
 	prod = 1; 
 	for j in [1:K:1] 
 	{   
-		prod = prod * i;
-		cin{a}; 
+		prod = prod * i; 
 	} 
 	sum = sum + prod; 
 }
-cout{sum}; 
+cout(sum); 
 $
  
