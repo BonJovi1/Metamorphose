@@ -50,9 +50,9 @@ Goal2: DOLLAR {cout<<"Code Accepted :') "<<endl; return(0); }
 	 | Goal DOLLAR {cout<<"Code Accepted :') "<<endl; return(0);}
 
 Goal: 
-	  | Goal control_flow_statement {what_it_returns temp = interpret($2); }
+	  | Goal control_flow_statement {what_it_returns temp = interpret($2); printPostFix($2); }
 	  | Goal function_definition
-	  | Goal Expr {what_it_returns temp = interpret($2); }
+	  | Goal Expr {what_it_returns temp = interpret($2); printPostFix($2);}
 
 // goal :(goal) expr | decl| conflow | io | func
 Exprs: Expr Exprs { $$ = getASTNodeExpression($1, $2); }
@@ -143,6 +143,9 @@ eg. func add(a, b) { return a+b; }
 	add(2,3);
 */
 
+function_definition: FUNC variable '(' multiple_ids ')' '{' Exprs '}' 
+function_call: variable '(' multiple_args ')' SEMICOLON
+
 multiple_ids: variable COMMA multiple_ids {$$ = getASTNodeMultipleID($1, $3); }
 			| variable {$$ = $1;}
 			;
@@ -150,10 +153,6 @@ multiple_ids: variable COMMA multiple_ids {$$ = getASTNodeMultipleID($1, $3); }
 multiple_args: Term COMMA multiple_args 
 			| Term {$$ = $1;}
 			;
-
-function_definition: FUNC variable '(' multiple_ids ')' '{' Exprs '}' 
-function_call: variable '(' multiple_args ')' SEMICOLON
-
 
 /* Defining Control Flow statements
 eg. if[a<5] { } else { }
@@ -180,6 +179,7 @@ Term: NUMBER { $$ = yylval; }
 	| variable LEFT_BRACKET operation RIGHT_BRACKET { $$ = getASTNodeArrayVariable($1, $3); }
 	;
 
+// function_variable: variable {$$ = getASTNodeFunctionVariable($1); }
 variable: IDD {$$ = yylval;}
 %%
 

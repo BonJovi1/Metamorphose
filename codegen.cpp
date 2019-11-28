@@ -1,16 +1,12 @@
-#include <bits/stdc++.h>
+#include "Codegen.h"
 #include "ast.h"
 #include "Interpreter.h"
-#include "Codegen.h"
-
-using namespace std;
 
 LLVMContext Context;
 Module *TheModule = new Module("Metamorphose", Context); // Contains all functions and variables
 IRBuilder<> Builder(Context); // helps to generate LLVM IR with helper functions
 map <string, AllocaInst*>NamedValues; // keeps track of all the values defined in the current scope like a symbol table
 std::vector<std::string> FunArgs;
-
 
 Function *createFunc(IRBuilder<> &Builder, std::string Name)
 {
@@ -51,7 +47,7 @@ AllocaInst *CreateEntryBlockAlloca(Function *TheFunction, string VarName, string
 {
 	
     IRBuilder<> TmpB(&TheFunction->getEntryBlock(), TheFunction->getEntryBlock().begin());
-    cout<<"say it isnt so"<<endl;
+    cout<<"reached here"<<endl;
     AllocaInst *alloca_instruction = nullptr;
     if (type == "int") 
     {
@@ -67,10 +63,11 @@ AllocaInst *CreateEntryBlockAlloca(Function *TheFunction, string VarName, string
 
 Value *LogErrorV(const char *Str) 
 {
-	cout<<Str;
-  	return nullptr;
+  cout<<Str;
+  return nullptr;
 }
 
+//Mine
 Value *Codegen(struct ASTNode *root)
 {
 	switch (root->nodetype)
@@ -87,7 +84,7 @@ Value *Codegen(struct ASTNode *root)
 			Value * v;
 			a = Codegen(root->binarynode.left);
   			b = Codegen(root->binarynode.right);
-  			if(a == 0 || b == 0)
+  			if(!a || !b)
   			{
   				return nullptr;
   			}
@@ -96,12 +93,16 @@ Value *Codegen(struct ASTNode *root)
   			{
   				case ADD:
   					// cout<<"Reached Add Codegen"<<endl;
-  					v  =  Builder.CreateAdd(a, b, "addition");
+  					v = Builder.CreateAdd(a, b, "addition");
   					// cout<<"DONE"<<endl;
   					return v;
   				case SUB: 
   					v = Builder.CreateSub(a, b, "subtraction");
   					return v;
+  				case MUL:
+  					v = Builder.CreateMul(a, b, "subtraction");
+  					return v;
+  					break;
   			}
   			break;
   		

@@ -3,8 +3,9 @@
 #include <iostream>
 #include <string.h>
 #include <map>
+
 using namespace std;
-// 
+
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Type.h>
@@ -26,6 +27,7 @@ Function *createFunc(IRBuilder<> &, std::string);
 BasicBlock *createBB(Function *, std::string);
 GlobalVariable *createGlob(IRBuilder<> &, std::string);
 Value *createArith(IRBuilder<> &, Value *, Value *);
+AllocaInst *CreateEntryBlockAlloca(Function *, string , string ) ;
 void setFuncArgs(Function *, std::vector<std::string>);
 
 extern Module *TheModule;

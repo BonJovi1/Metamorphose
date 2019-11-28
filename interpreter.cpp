@@ -10,6 +10,7 @@
 using namespace std;
 
 map<string, what_it_returns> symbol_table;
+map<string, what_it_returns> map_table;
 
 what_it_returns interpret(struct ASTNode *root)
 {

@@ -265,9 +265,9 @@ void printPostFix(struct ASTNode *root)
 {
 	switch (root->nodetype) 	
 	{
+
 		case BinaryOp:
-			// printf("Binary Operator ");
-		
+			printf("Binary Operator Node: ");
 			printPostFix(root->binarynode.left);
 			printPostFix(root->binarynode.right);
 			switch (root->binarynode.op) 
@@ -281,7 +281,7 @@ void printPostFix(struct ASTNode *root)
 				case DIV: printf("/ ");
 						  break;
 			}
-			// printf("\n");
+			printf("\n");
 			break;
 			// case TernaryOp: printPostFix(root->ternarynode.first);
 			// 				printPostFix(root->ternarynode.second);
@@ -291,11 +291,22 @@ void printPostFix(struct ASTNode *root)
 		case INTLITERAL:
 			printf("%d ", root->litval);
 			break;
+		
 		case Assignment:
+			printf("Assignment Node: ");
 			printPostFix(root->assignment_node.left);
+			printf(" equals_to ");
 			printPostFix(root->assignment_node.right);
 			printf("\n");
 			break;
+		
+		case ArrayAssignment:
+			printPostFix(root->arrayassignment_node.left);
+			printPostFix(root->arrayassignment_node.center);
+			printPostFix(root->arrayassignment_node.right);
+			printf("\n");
+			break;
+		
 		case ForLoop:
 			// printf("For Loop\n");	
 			printPostFix(root->forloop_node.start);
@@ -303,9 +314,15 @@ void printPostFix(struct ASTNode *root)
 			printPostFix(root->forloop_node.increment);
 			printf("\n");
 			break;
+		
+		case ForStatement:
+			printPostFix(root->forstatement_node.left);
+			printPostFix(root->forstatement_node.center);
+			printPostFix(root->forstatement_node.right);
+			break;
+		
 		case Condition:
 			// printf("Condition Operation\n");
-			
 			printPostFix(root->condition_node.left);
 			printPostFix(root->condition_node.right);
 			switch (root->condition_node.op) 
@@ -322,10 +339,10 @@ void printPostFix(struct ASTNode *root)
 						break;
 			}
 			printf("\n");
-					break;
+			break;
+
 		case identifier:
 			printf("%s ", root->identifier_node);
-			printf("\n");
 			break;
 		
 		case expression:
@@ -336,24 +353,35 @@ void printPostFix(struct ASTNode *root)
 			break;
 		
 		case declaration:
-			// printf("Declaration\n");
+			printf("Declaration Node: ");
 			switch (root->declaration_node.op) 
 			{
-				case INTS: printf("int ");
+				case INTS: printf("(type) int, ");
 						break; 
-				case CHARS: printf("char ");
+				case CHARS: printf("(type) char, ");
 						break;
-				case UINTS: printf("uint ");
+				case UINTS: printf("(type) uint, ");
 						break;
-				case BOOLS: printf("bool ");
+				case BOOLS: printf("(type) bool, ");
 						break;
-				case STRINGS: printf("string ");
+				case STRINGS: printf("(type) string, ");
 						break;
-				case ARRAYS: printf("array ");
+				case ARRAYS: printf("(type) array, ");
 						break;
 			}
+			printf("(identifier): ");
 			printPostFix(root->declaration_node.right);
 			printf("\n");
 			break;
+		case arraydeclaration:
+			printf("Array Declaration node: ");
+			printf("(type) int, ");
+			printf("(variable) ");
+			printPostFix(root->arraydeclaration_node.left);
+			printf(", (size) ");
+			printPostFix(root->arraydeclaration_node.right);
+			printf("\n");
+			break;
+
 }
 };
