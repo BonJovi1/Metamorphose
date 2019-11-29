@@ -71,24 +71,24 @@ The statements can be of various types, as given in the CFG rule below.
 // { $$ = $1; what_it_returns temp = interpret($1);  }
 Expr: assignment { $$ = $1; }
 	| declaration { $$ = $1; 
-							// GlobalVariable *gVar = createGlob(Builder, "x");
-	 						// Function *fooFunc = createFunc(Builder, "main");
-							// setFuncArgs(fooFunc, FunArgs);
-							// BasicBlock *entry = createBB(fooFunc, "entry");
-							// Builder.SetInsertPoint(entry);
-							// Builder.CreateRet(Codegen($1)); 
-							// TheModule->print(errs(), nullptr); 
+							GlobalVariable *gVar = createGlob(Builder, "x");
+	 						Function *fooFunc = createFunc(Builder, "main");
+							setFuncArgs(fooFunc, FunArgs);
+							BasicBlock *entry = createBB(fooFunc, "entry");
+							Builder.SetInsertPoint(entry);
+							Builder.CreateRet(Codegen($1)); 
+							TheModule->print(errs(), nullptr); 
 				  }   
 	| io_statement { $$ = $1; }
 	| function_call {$$ = $1; }
 	| operation { $$ = $1;  
-							// GlobalVariable *gVar = createGlob(Builder, "x");
-	 						// Function *fooFunc = createFunc(Builder, "main");
-							// setFuncArgs(fooFunc, FunArgs);
-							// BasicBlock *entry = createBB(fooFunc, "entry");
-							// Builder.SetInsertPoint(entry);
-							// Builder.CreateRet(Codegen($1)); 
-							// TheModule->print(errs(), nullptr); 
+							GlobalVariable *gVar = createGlob(Builder, "x");
+	 						Function *fooFunc = createFunc(Builder, "main");
+							setFuncArgs(fooFunc, FunArgs);
+							BasicBlock *entry = createBB(fooFunc, "entry");
+							Builder.SetInsertPoint(entry);
+							Builder.CreateRet(Codegen($1)); 
+							TheModule->print(errs(), nullptr); 
 				}
 	//| control_flow_statement {$$ = $1;}
 	;

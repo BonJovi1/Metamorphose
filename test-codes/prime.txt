@@ -1,7 +1,7 @@
 int N;
 int i;
 int flag;
-N = 15;
+N = 23;
 flag = 0; 
 for i in [2:N:1]
 {
