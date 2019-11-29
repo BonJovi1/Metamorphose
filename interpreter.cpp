@@ -10,7 +10,8 @@
 using namespace std;
 
 map<string, what_it_returns> symbol_table;
-map<string, what_it_returns> map_table;
+map<string, what_it_returns> symbol2_table;
+map<string, functionss> function_table;
 
 what_it_returns interpret(struct ASTNode *root)
 {
@@ -21,6 +22,7 @@ what_it_returns interpret(struct ASTNode *root)
 			lol1 = interpret(root->expression_node.left); 
 			lol2 = interpret(root->expression_node.right); 
 			return lol2;
+			break;
 
 		case declaration:
 			what_it_returns temp;
@@ -30,6 +32,56 @@ what_it_returns interpret(struct ASTNode *root)
 			symbol_table[root->declaration_node.right->identifier_node] = temp;
 			
 			return temp;
+			break;
+
+		case functiondef:
+		{
+			functionss funcobj;
+			
+			funcobj.returntype = "int";
+			funcobj.block = root->functiondef_node.right;
+			// cout<< root->functiondef_node.left->identifier_node;
+			function_table[root->functiondef_node.left->identifier_node] = funcobj;
+
+			temp.return_type = NOTHING_RET;
+			temp.nothing_value = 0;
+			return temp;
+			break;
+		}
+
+		case functioncall:
+		{
+			functionss funcobj;
+			string funcname;
+			funcname = root->functioncall_node.left->identifier_node;
+			if(function_table.find(funcname) == function_table.end())
+			{
+				cout<<"Function not declared :("<<endl;
+				exit(0);
+				break;
+			}
+			funcobj = function_table[funcname];
+			lol1 = interpret(root->functioncall_node.right);
+			lol2 = interpret(funcobj.block);
+			return lol2;
+			break;
+		}
+
+		case Return:
+			what_it_returns return_obj;
+			// cout<<"LOL"<<symbol_table[root->return_node.left->identifier_node].int_value<<endl;
+			return_obj.int_value = symbol_table[root->return_node.left->identifier_node].int_value;
+			return_obj.return_type = INT_RET;
+			return return_obj;
+			break;
+
+
+		case args:
+			lol1 = interpret(root->args_node.left);
+			lol2 = interpret(root->args_node.right);
+			symbol_table["funca"] = lol1;
+			symbol_table["funcb"] = lol2;
+			return lol1;
 			break;
 
 		case arraydeclaration:
@@ -43,6 +95,11 @@ what_it_returns interpret(struct ASTNode *root)
 			break;
 
 		case Assignment:
+
+			// if(root->assignment_node.right->nodetype == functioncall)
+			// {
+
+			// }
 
 			temp = interpret(root->assignment_node.right);
 			
@@ -224,6 +281,7 @@ what_it_returns interpret(struct ASTNode *root)
 			break_obj.nothing_value = 0;
 			break_obj.return_type = BREAK_RET;
 			return break_obj;
+			break;
 			
 		case IfStatement:
 			what_it_returns temp_condition, temp_exprs;
@@ -287,6 +345,7 @@ what_it_returns interpret(struct ASTNode *root)
 			a = interpret(root->multipleid_node.left);
 			b = interpret(root->multipleid_node.right);
 			return b; 
+			break;
 
 		case arrayvariable:
 			
@@ -313,6 +372,7 @@ what_it_returns interpret(struct ASTNode *root)
 			break;
 
 		case Print:
+			// cout<<"Reached here";
 			location = root->print_node.left;
 			
 			// if(location->nodetype == INTLITERAL)
@@ -370,6 +430,7 @@ what_it_returns interpret(struct ASTNode *root)
 			lol1 = interpret(root->printpossibilities_node.left);
 			lol2 = interpret(root->printpossibilities_node.right);
 			cout<<lol2.print_value<<endl;
+			break;
 	}
 };
 

@@ -38,7 +38,7 @@ void evaluate(what_it_returns temp);
 %token OUTPUT
 %token COMMA
 %token BREAK
-%token FUNC
+%token FUNC RETURN
 %%
 
 /* Now, we define the Context Free Grammar of our language
@@ -47,12 +47,12 @@ Any code written in this language must end with a '$' symbol.
 */
 
 Goal2: DOLLAR {cout<<"Code Accepted :') "<<endl; return(0); }
-	 | Goal DOLLAR {cout<<"Code Accepted :') "<<endl; return(0);}
+	 | Goal DOLLAR {$$ = $1; cout<<"Code Accepted :') "<<endl; return(0);}
 
 Goal: 
 	  | Goal control_flow_statement {what_it_returns temp = interpret($2); printPostFix($2); }
-	  | Goal function_definition
-	  | Goal Expr {what_it_returns temp = interpret($2); printPostFix($2);}
+	  | Goal function_definition { $$ = $2; what_it_returns temp = interpret($2); }
+	  | Goal Expr {$$ = $2; what_it_returns temp = interpret($2); printPostFix($2); }
 
 // goal :(goal) expr | decl| conflow | io | func
 Exprs: Expr Exprs { $$ = getASTNodeExpression($1, $2); }
@@ -60,6 +60,7 @@ Exprs: Expr Exprs { $$ = getASTNodeExpression($1, $2); }
      | control_flow_statement {$$ = $1; }
      // | control_flow_statement Exprs 
      | BREAK { $$ = yylval; }
+     | RETURN variable SEMICOLON { $$ = getASTNodeReturn($2); }
      ;
 
 /* An Expression would comprise of multiple statements. 
@@ -69,16 +70,25 @@ The statements can be of various types, as given in the CFG rule below.
 // { $$ = $1; what_it_returns temp = interpret($1); evaluate(temp);}
 // { $$ = $1; what_it_returns temp = interpret($1);  }
 Expr: assignment { $$ = $1; }
-	| declaration { $$ = $1; } 	  
+	| declaration { $$ = $1; 
+							// GlobalVariable *gVar = createGlob(Builder, "x");
+	 						// Function *fooFunc = createFunc(Builder, "main");
+							// setFuncArgs(fooFunc, FunArgs);
+							// BasicBlock *entry = createBB(fooFunc, "entry");
+							// Builder.SetInsertPoint(entry);
+							// Builder.CreateRet(Codegen($1)); 
+							// TheModule->print(errs(), nullptr); 
+				  }   
 	| io_statement { $$ = $1; }
-	| function_call
-	| operation { $$ = $1;  GlobalVariable *gVar = createGlob(Builder, "x");
-							Function *fooFunc = createFunc(Builder, "foo");
-							setFuncArgs(fooFunc, FunArgs);
-							BasicBlock *entry = createBB(fooFunc, "entry");
-							Builder.SetInsertPoint(entry);
-							Builder.CreateRet(Codegen($1)); 
-							TheModule->print(errs(), nullptr);
+	| function_call {$$ = $1; }
+	| operation { $$ = $1;  
+							// GlobalVariable *gVar = createGlob(Builder, "x");
+	 						// Function *fooFunc = createFunc(Builder, "main");
+							// setFuncArgs(fooFunc, FunArgs);
+							// BasicBlock *entry = createBB(fooFunc, "entry");
+							// Builder.SetInsertPoint(entry);
+							// Builder.CreateRet(Codegen($1)); 
+							// TheModule->print(errs(), nullptr); 
 				}
 	//| control_flow_statement {$$ = $1;}
 	;
@@ -113,6 +123,7 @@ eg. a = 5;
 assignment: variable EQUAL_TO operation SEMICOLON { $$ = getASTNodeAssignment($1, $3); }
 		  | variable LEFT_BRACKET operation RIGHT_BRACKET 
 		  	EQUAL_TO operation SEMICOLON { $$ = getASTNodeArrayAssignment($1, $3, $6); }
+		  | variable EQUAL_TO function_call { $$ = getASTNodeAssignment($1, $3); }
 		  ;
 
 operation: operation AND_OP Term { $$ = getASTNodeBinaryOp($1, $3, AND);}
@@ -143,14 +154,14 @@ eg. func add(a, b) { return a+b; }
 	add(2,3);
 */
 
-function_definition: FUNC variable '(' multiple_ids ')' '{' Exprs '}' 
-function_call: variable '(' multiple_args ')' SEMICOLON
+function_definition: FUNC variable '(' multiple_ids ')' '{' Exprs '}' {$$ = getASTNodeFunctionDef($2, $7);}
+function_call: variable '(' multiple_args ')' SEMICOLON {$$ = getASTNodeFunctionCall($1, $3);}
 
-multiple_ids: variable COMMA multiple_ids {$$ = getASTNodeMultipleID($1, $3); }
+multiple_ids: variable COMMA multiple_ids 
 			| variable {$$ = $1;}
 			;
 
-multiple_args: Term COMMA multiple_args 
+multiple_args: Term COMMA Term {$$ = getASTNodeArgs($1, $3); }
 			| Term {$$ = $1;}
 			;
 
@@ -212,8 +223,6 @@ void evaluate(what_it_returns obj)
 int main(int argc, char **argv)
 {
     yyparse();
-    // printf("Parsing Over\n");
-    
-
+    // printf("Parsing Over\n")
     return 0;
 }

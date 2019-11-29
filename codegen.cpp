@@ -105,33 +105,40 @@ Value *Codegen(struct ASTNode *root)
   					break;
   			}
   			break;
+
+  		case Assignment:
+  			cout<<"WOOHOO";
+  			a = Codegen(root->binarynode.left);
+  			b = Codegen(root->binarynode.right);
+  			v = nullptr;
+  			Builder.CreateStore(b, a);
+  			return a;
+  			break;
+
   		
   		case identifier:
   			v = NamedValues[root->identifier_node];
   			if (!v)
     			LogErrorV("Unknown variable name");
   			return v;
+  			break;
 
   		case declaration:
-			// SingleId *pd;
-			// pd = dynamic_cast<SingleId*>(root->declaration_node.right);
-			string var;
-			var = root->declaration_node.right->identifier_node;
-			cout<<"REAHCED";
-
-			Value * init_val;
-			init_val = nullptr;
+			Function* the_func = Builder.GetInsertBlock()->getParent();
+			Value* init_val = nullptr;
+			AllocaInst* alloc = nullptr;
 			
-			AllocaInst * Alloca;
-			Function *TheFunction;
-			TheFunction = createFunc(Builder, "foo");
+			string var;
+			var = root->declaration_node.right->identifier_node;			
+			
 			init_val = ConstantInt::get(Context, APInt(32,0));
+			alloc = CreateEntryBlockAlloca(the_func, var, "int");
+			Builder.CreateStore(init_val, alloc);
+			NamedValues[var] = alloc;
+			// add_context(make_pair(var, alloc));
 
-			// Alloca =  CreateEntryBlockAlloca(TheFunction,var,"int");
-			// return init_val;
-			// Builder.CreateStore(init_val, Alloca);
-			NamedValues[var] = Alloca;
 			return init_val;
+			break;
 	}
 
 }

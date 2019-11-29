@@ -36,6 +36,7 @@ int lineno = 0;
 "fi"			{ return FI; }
 "else"			{ return ELSE; }
 "func"			{ return FUNC; }
+"return"		{  return RETURN; }
 
 ":"			    { return FOR_SEPARATE;}
 ","				{ return COMMA;}

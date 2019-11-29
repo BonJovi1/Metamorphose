@@ -97,6 +97,42 @@ struct ASTNode *getASTNodeExpression(struct ASTNode *left, struct ASTNode *right
 	return node;
 }
 
+struct ASTNode *getASTNodeFunctionDef(struct ASTNode *left, struct ASTNode *right)
+{
+	struct ASTNode *node; 
+	node = (struct ASTNode *) malloc(sizeof(struct ASTNode));
+
+	node->nodetype = functiondef;
+
+	node->functiondef_node.left = left;
+	node->functiondef_node.right = right;
+	return node;
+}
+
+struct ASTNode *getASTNodeFunctionCall(struct ASTNode *left, struct ASTNode *right)
+{
+	struct ASTNode *node; 
+	node = (struct ASTNode *) malloc(sizeof(struct ASTNode));
+
+	node->nodetype = functioncall;
+
+	node->functioncall_node.left = left;
+	node->functioncall_node.right = right;
+	return node;
+}
+
+struct ASTNode *getASTNodeArgs(struct ASTNode *left, struct ASTNode *right)
+{
+	struct ASTNode *node; 
+	node = (struct ASTNode *) malloc(sizeof(struct ASTNode));
+
+	node->nodetype = args;
+
+	node->args_node.left = left;
+	node->args_node.right = right;
+	return node;
+}
+
 struct ASTNode *getASTNodePrintPossibilities(struct ASTNode *left, struct ASTNode *right)
 {
 	struct ASTNode *node; 
@@ -248,6 +284,17 @@ struct ASTNode *getASTNodeScan(struct ASTNode *root)
 	return node;
 }
 
+struct ASTNode *getASTNodeReturn(struct ASTNode *root)
+{
+	struct ASTNode *node; 
+	node = (struct ASTNode *) malloc(sizeof(struct ASTNode));
+
+	node->nodetype = Return;
+	node->return_node.left = root;
+
+	return node;
+}
+
 struct ASTNode *getASTNodeMultipleID(struct ASTNode *left, struct ASTNode *right)
 {
 	struct ASTNode *node; 
@@ -281,7 +328,7 @@ void printPostFix(struct ASTNode *root)
 				case DIV: printf("/ ");
 						  break;
 			}
-			printf("\n");
+			// printf("\n");
 			break;
 			// case TernaryOp: printPostFix(root->ternarynode.first);
 			// 				printPostFix(root->ternarynode.second);
@@ -308,7 +355,7 @@ void printPostFix(struct ASTNode *root)
 			break;
 		
 		case ForLoop:
-			// printf("For Loop\n");	
+			printf("For Loop: ");	
 			printPostFix(root->forloop_node.start);
 			printPostFix(root->forloop_node.end);
 			printPostFix(root->forloop_node.increment);
@@ -316,6 +363,7 @@ void printPostFix(struct ASTNode *root)
 			break;
 		
 		case ForStatement:
+			printf("For Statement: ");
 			printPostFix(root->forstatement_node.left);
 			printPostFix(root->forstatement_node.center);
 			printPostFix(root->forstatement_node.right);
@@ -344,6 +392,11 @@ void printPostFix(struct ASTNode *root)
 		case identifier:
 			printf("%s ", root->identifier_node);
 			break;
+
+		// case MultipleID:
+		// 	printPostFix(root->multipleid_node.left);
+		// 	printPostFix(root->multipleid_node.right);
+		// 	break;
 		
 		case expression:
 			// printf("For Loop\n");	
@@ -382,6 +435,10 @@ void printPostFix(struct ASTNode *root)
 			printPostFix(root->arraydeclaration_node.right);
 			printf("\n");
 			break;
-
+		case functioncall:
+			printf("Function Call: ");
+			printPostFix(root->functioncall_node.left);
+			printPostFix(root->functioncall_node.right);
+			
 }
 };

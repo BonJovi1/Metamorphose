@@ -16,7 +16,11 @@ typedef enum  astnodetype { BinaryOp,
 							Scan,
 							PrintPossibilities,
 							Break,
-							MultipleID} 
+							Return,
+							MultipleID,
+							args,
+							functiondef,
+							functioncall} 
 							ASTNodeType;
 
 typedef enum  binaryoptype {ADD, SUB, MUL, DIV, AND, OR, MOD} BinaryOpType; 
@@ -28,6 +32,12 @@ extern struct ASTNode *getASTNodeBinaryOp(struct ASTNode *left,
 										  BinaryOpType opera);
 
 extern struct ASTNode *getASTNodeAssignment(struct ASTNode *left, 
+											struct ASTNode *right);
+
+extern struct ASTNode *getASTNodeFunctionDef(struct ASTNode *left, 
+											struct ASTNode *right);
+
+extern struct ASTNode *getASTNodeFunctionCall(struct ASTNode *left, 
 											struct ASTNode *right);
 
 extern struct ASTNode *getASTNodeArrayAssignment(struct ASTNode *left, 
@@ -68,12 +78,16 @@ extern struct ASTNode *getASTNodeExpression(struct ASTNode *left,
 extern struct ASTNode *getASTNodeMultipleID(struct ASTNode *left, 
 											struct ASTNode *right);
 
+extern struct ASTNode *getASTNodeArgs(struct ASTNode *left, 
+											struct ASTNode *right);
+
 extern struct ASTNode *getASTNodePrintPossibilities(struct ASTNode *left, 
 													struct ASTNode *right);
 
 extern struct ASTNode *getASTNodeIntLiteral(int litval);
 extern struct ASTNode *getASTNodeID(char* str);
 extern struct ASTNode *getASTNodeBreak(char* str);
+extern struct ASTNode *getASTNodeReturn(struct ASTNode *root);
 extern struct ASTNode *getASTNodePrint(struct ASTNode *root);
 extern struct ASTNode *getASTNodeScan(struct ASTNode *root);
 //extern struct ASTNode *getASTNodeTernaryOp(struct ASTNode *first, struct ASTNode *second, struct ASTNode *third);
@@ -114,6 +128,18 @@ struct ASTNode {
 			struct ASTNode *left; 
 			struct ASTNode *right; 
 		} arraydeclaration_node;
+
+		struct 
+		{
+			struct ASTNode *left; 
+			struct ASTNode *right; 
+		} functiondef_node;
+
+		struct 
+		{
+			struct ASTNode *left; 
+			struct ASTNode *right; 
+		} functioncall_node;
 
 		//array variable
 		struct 
@@ -188,11 +214,24 @@ struct ASTNode {
 			struct ASTNode *right;
 		} multipleid_node;
 
+		//args
+		struct
+		{
+			struct ASTNode *left;
+			struct ASTNode *right;
+		} args_node;
+
 		//numbers
 		int litval;
 
 		char* identifier_node;
 		char* break_node;
+		// char* return_node;
+
+		struct 
+		{
+			struct ASTNode *left;
+		} return_node;
 
 		struct 
 		{
